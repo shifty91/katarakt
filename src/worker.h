@@ -22,6 +22,10 @@ signals:
 
 private:
 	ResourceManager *res;
+
+	// config options
+	bool smooth_downscaling;
+	int thumbnail_size;
 };
 
 #endif

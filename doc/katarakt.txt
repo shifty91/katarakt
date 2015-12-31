@@ -150,8 +150,8 @@ VARIABLES
 'string' *background_color_fullscreen* ::
 	0xFF000000: Fullscreen background color in ARGB Format.
 'string' *unrendered_page_color* ::
-	0x80808080: Color that gets drawn instead of a page that hasn't been
-	rendered yet.
+	0x40FFFFFF: Color that gets drawn instead of a page that hasn't been
+	rendered yet. If colors are inverted, this gets inverted as well.
 'int' *click_link_button* ::
 	1: The mouse button used for clicking links. Buttons 1-5 are supported.
 'int' *drag_view_button* ::
@@ -212,6 +212,12 @@ GotoLine {
 'int' *prefetch_count* ::
 	4: Number of pages exceeding the currently visible ones to render, back-
 	and forwards respectively.
+'float' *inverted_color_contrast* ::
+	0.5: the contrast when using inverted colors to avoid too much
+	brightness.
+'float' *inverted_color_brightening* ::
+	0.15: amount of brightening when using inverted colors to shift black to
+	gray.
 'int' *mouse_wheel_factor* ::
 	120: QT delta for turning the mouse wheel 1 click. Shouldn't need to be
 	touched.

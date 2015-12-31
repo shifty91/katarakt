@@ -4,6 +4,10 @@
 #include <QRect>
 #include <QRectF>
 
+
+class QImage;
+
+
 #define POPPLER_VERSION ((POPPLER_VERSION_MAJOR << 16) | (POPPLER_VERSION_MINOR << 8) | (POPPLER_VERSION_MICRO))
 
 #define POPPLER_VERSION_CHECK(major,minor,micro) ((major << 16) | (minor << 8) | (micro))
@@ -20,6 +24,8 @@ QRect transform_rect(const QRectF &rect, float scale, int off_x, int off_y);
 QRect transform_rect_expand(const QRectF &rect, float scale, int off_x, int off_y);
 
 void add_action(QWidget *base, const char *action, const char *slot, QWidget *receiver);
+
+void invert_image(QImage *img);
 
 #endif
 

@@ -3,6 +3,8 @@
 #include "kpage.h"
 #include "canvas.h"
 #include "selection.h"
+#include "util.h"
+#include "config.h"
 #include <list>
 #include <iostream>
 #include <poppler/qt4/poppler-qt4.h>
@@ -13,6 +15,10 @@ using namespace std;
 Worker::Worker(ResourceManager *res) :
 		die(false),
 		res(res) {
+	// load config options
+	CFG *config = CFG::get_instance();
+	smooth_downscaling = config->get_value("Settings/thumbnail_filter").toBool();
+	thumbnail_size = config->get_value("Settings/thumbnail_size").toInt();
 }
 
 void Worker::run() {
@@ -57,58 +63,90 @@ void Worker::run() {
 		res->requestMutex.unlock();
 
 		// check for duplicate requests
-		res->k_page[page].mutex.lock();
-		if (res->k_page[page].status[index] == width &&
-				res->k_page[page].rotation[index] == res->rotation) {
-			res->k_page[page].mutex.unlock();
-			continue;
+		KPage &kp = res->k_page[page];
+
+		kp.mutex.lock();
+		bool render_new = true;
+		if (kp.status[index] == width && kp.rotation[index] == res->rotation) {
+			if (kp.img[index].isNull()) { // only invert colors
+				render_new = false;
+			} else { // nothing to do
+				kp.mutex.unlock();
+				continue;
+			}
 		}
 		int rotation = res->rotation;
-		res->k_page[page].mutex.unlock();
+		kp.mutex.unlock();
 
 		// open page
 #ifdef DEBUG
 		cerr << "    rendering page " << page << " for index " << index << endl;
 #endif
-		Poppler::Page *p = res->doc->page(page);
-		if (p == NULL) {
-			cerr << "failed to load page " << page << endl;
-			continue;
-		}
-
-		// render page
-		float dpi = 72.0 * width / res->get_page_width(page);
-		QImage img = p->renderToImage(dpi, dpi, -1, -1, -1, -1,
-				static_cast<Poppler::Page::Rotation>(rotation));
-
-		if (img.isNull()) {
-			cerr << "failed to render page " << page << endl;
-			continue;
-		}
-
-		// invert to current color setting
-		if (res->inverted_colors) {
-			img.invertPixels();
-		}
-
-		// put page
-		res->k_page[page].mutex.lock();
-		if (!res->k_page[page].img[index].isNull()) {
-			res->k_page[page].img[index] = QImage(); // assign null image
-		}
-
-		// adjust all available images to current color setting
-		if (res->k_page[page].inverted_colors != res->inverted_colors) {
-			res->k_page[page].inverted_colors = res->inverted_colors;
-			for (int i = 0; i < 3; i++) {
-				res->k_page[page].img[i].invertPixels();
+		Poppler::Page *p = NULL;
+		if (render_new) {
+			p = res->doc->page(page);
+			if (p == NULL) {
+				cerr << "failed to load page " << page << endl;
+				continue;
 			}
-			res->k_page[page].thumbnail.invertPixels();
+
+			// render page
+			float dpi = 72.0 * width / res->get_page_width(page);
+			QImage img = p->renderToImage(dpi, dpi, -1, -1, -1, -1,
+					static_cast<Poppler::Page::Rotation>(rotation));
+
+			if (img.isNull()) {
+				cerr << "failed to render page " << page << endl;
+				continue;
+			}
+
+			// insert new image
+			kp.mutex.lock();
+			if (kp.inverted_colors) {
+				kp.img[index] = QImage();
+				kp.img_other[index] = img;
+			} else {
+				kp.img[index] = img;
+				kp.img_other[index] = QImage();
+			}
+			kp.status[index] = width;
+			kp.rotation[index] = rotation;
+		} else {
+			// image already exists
+			kp.mutex.lock();
 		}
-		res->k_page[page].img[index] = img;
-		res->k_page[page].status[index] = width;
-		res->k_page[page].rotation[index] = rotation;
-		res->k_page[page].mutex.unlock();
+
+		if (kp.inverted_colors) {
+			// generate inverted image
+			kp.img[index] = kp.img_other[index];
+			invert_image(&kp.img[index]);
+		}
+
+		// create thumbnail
+		if (kp.thumbnail.isNull()) {
+			Qt::TransformationMode mode = Qt::FastTransformation;
+			if (smooth_downscaling) {
+				mode = Qt::SmoothTransformation;
+			}
+			// scale
+			if (kp.inverted_colors) {
+				kp.thumbnail = kp.img_other[index].scaled(QSize(thumbnail_size, thumbnail_size), Qt::IgnoreAspectRatio, mode);
+			} else {
+				kp.thumbnail = kp.img[index].scaled(QSize(thumbnail_size, thumbnail_size), Qt::IgnoreAspectRatio, mode);
+			}
+			// rotate
+			if (kp.rotation[index] != 0) {
+				QTransform trans;
+				trans.rotate(-kp.rotation[index] * 90);
+				kp.thumbnail = kp.thumbnail.transformed(trans);
+			}
+			kp.thumbnail_other = kp.thumbnail;
+			invert_image(&kp.thumbnail_other);
+			if (kp.inverted_colors) {
+				kp.thumbnail.swap(kp.thumbnail_other);
+			}
+		}
+		kp.mutex.unlock();
 
 		res->garbageMutex.lock();
 		res->garbage.insert(page); // TODO add index information?
@@ -118,7 +156,7 @@ void Worker::run() {
 
 		// collect goto links
 		res->link_mutex.lock();
-		if (res->k_page[page].links == NULL) {
+		if (kp.links == NULL) {
 			res->link_mutex.unlock();
 
 			QList<Poppler::Link *> *links = new QList<Poppler::Link *>;
@@ -126,9 +164,9 @@ void Worker::run() {
 			links->swap(l);
 
 			res->link_mutex.lock();
-			res->k_page[page].links = links;
+			kp.links = links;
 		}
-		if (res->k_page[page].text == NULL) {
+		if (kp.text == NULL) {
 			res->link_mutex.unlock();
 
 			QList<Poppler::TextBox *> text = p->textList();
@@ -190,12 +228,11 @@ void Worker::run() {
 			}
 
 			res->link_mutex.lock();
-			res->k_page[page].text = lines;
+			kp.text = lines;
 		}
 		res->link_mutex.unlock();
 
 		delete p;
 	}
 }
-
 

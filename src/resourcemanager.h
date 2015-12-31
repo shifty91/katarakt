@@ -107,9 +107,6 @@ private:
 	QSocketNotifier *i_notifier;
 #endif
 
-	// config options
-	bool smooth_downscaling;
-	int thumbnail_size;
 	bool inverted_colors;
 
 	std::list<int> jumplist;

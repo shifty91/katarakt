@@ -1,7 +1,13 @@
 #include <QAction>
 #include <QObject>
+#include <QImage>
+//#include <QTime>
+//#include <iostream>
 #include "util.h"
 #include "config.h"
+
+
+using namespace std;
 
 
 const QRectF rotate_rect(const QRectF &rect, float w, float h, int rotation) {
@@ -51,5 +57,30 @@ void add_action(QWidget *base, const char *action, const char *slot, QWidget *re
 		base->addAction(a);
 		QObject::connect(a, SIGNAL(triggered()), receiver, slot);
 	}
+}
+
+void invert_image(QImage *img) {
+	static QRgb invert_mask = qRgba(255, 255, 255, 0);
+	static float inverted_contrast =
+			CFG::get_instance()->get_value("Settings/inverted_color_contrast").toFloat();
+	static int offset = 255 *
+			CFG::get_instance()->get_value("Settings/inverted_color_brightening").toFloat();
+//	QTime time;
+//	time.start();
+
+//	img->invertPixels();
+
+	QRgb *pixels = reinterpret_cast<QRgb *>(img->bits());
+	QRgb *pixels_end = pixels + img->width() * img->height();
+
+	while (pixels < pixels_end) {
+		*pixels ^= invert_mask;
+		*pixels = qRgb(
+				(qRed(*pixels)) * inverted_contrast + offset,
+				(qGreen(*pixels)) * inverted_contrast + offset,
+				(qBlue(*pixels)) * inverted_contrast + offset);
+		++pixels;
+	}
+//	cout << time.elapsed() << "ms elapsed" << endl;
 }
 

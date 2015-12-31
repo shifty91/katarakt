@@ -45,6 +45,8 @@ void CFG::init_defaults() {
 	vd.push_back("Settings/icon_theme"); defaults[vd.back()] = "";
 	// internal
 	vd.push_back("Settings/prefetch_count"); defaults[vd.back()] = 4;
+	vd.push_back("Settings/inverted_color_contrast"); defaults[vd.back()] = 0.5;
+	vd.push_back("Settings/inverted_color_brightening"); defaults[vd.back()] = 0.15;
 	vd.push_back("Settings/mouse_wheel_factor"); defaults[vd.back()] = 120; // (qt-)delta for turning the mouse wheel 1 click
 	vd.push_back("Settings/thumbnail_filter"); defaults[vd.back()] = true; // filter when creating thumbnail image
 	vd.push_back("Settings/thumbnail_size"); defaults[vd.back()] = 32;

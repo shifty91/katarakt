@@ -9,7 +9,6 @@
 #endif
 #include "resourcemanager.h"
 #include "canvas.h"
-#include "config.h"
 #include "util.h"
 #include "kpage.h"
 #include "worker.h"
@@ -32,11 +31,6 @@ ResourceManager::ResourceManager(const QString &file, Viewer *v) :
 #endif
 		inverted_colors(false),
 		cur_jump_pos(jumplist.end()) {
-	// load config options
-	CFG *config = CFG::get_instance();
-	smooth_downscaling = config->get_value("Settings/thumbnail_filter").toBool();
-	thumbnail_size = config->get_value("Settings/thumbnail_size").toInt();
-
 	initialize(file, QByteArray());
 }
 
@@ -181,20 +175,20 @@ const KPage *ResourceManager::get_page(int page, int width, int index) {
 		return NULL;
 	}
 
-	// page not available or wrong size/rotation
+	// page not available or wrong size/rotation/color
 	k_page[page].mutex.lock();
+	bool must_invert_colors = k_page[page].inverted_colors != inverted_colors;
+	if (must_invert_colors) {
+		k_page[page].toggle_invert_colors();
+	}
+
 	if (k_page[page].img[index].isNull() ||
 			k_page[page].status[index] != width ||
-			k_page[page].rotation[index] != rotation) {
+			k_page[page].rotation[index] != rotation ||
+			must_invert_colors) {
 		enqueue(page, width, index);
 	}
-	if (inverted_colors != k_page[page].inverted_colors) {
-		k_page[page].inverted_colors = inverted_colors;
-		for (int i = 0; i < 3; i++) {
-			k_page[page].img[i].invertPixels();
-		}
-		k_page[page].thumbnail.invertPixels();
-	}
+
 	return &k_page[page];
 }
 
@@ -240,33 +234,9 @@ void ResourceManager::collect_garbage(int keep_min, int keep_max) {
 		cerr << "    removing page " << page << endl;
 #endif
 		k_page[page].mutex.lock();
-		// create thumbnail
-		if (k_page[page].thumbnail.isNull()) {
-			Qt::TransformationMode mode = Qt::FastTransformation;
-			if (smooth_downscaling) {
-				mode = Qt::SmoothTransformation;
-			}
-			// find the index of the rendered image
-			for (int i = 0; i < 3; i++) {
-				if (!k_page[page].img[i].isNull()) {
-//					k_page[page].inverted_colors = inverted_colors;
-					// scale
-					k_page[page].thumbnail = k_page[page].img[i].scaled(
-							QSize(thumbnail_size, thumbnail_size),
-							Qt::IgnoreAspectRatio, mode);
-					// rotate
-					if (k_page[page].rotation[i] != 0) {
-						QTransform trans;
-						trans.rotate(-k_page[page].rotation[i] * 90);
-						k_page[page].thumbnail = k_page[page].thumbnail.transformed(
-								trans);
-					}
-					break;
-				}
-			}
-		}
 		for (int i = 0; i < 3; i++) {
 			k_page[page].img[i] = QImage();
+			k_page[page].img_other[i] = QImage();
 			k_page[page].status[i] = 0;
 			k_page[page].rotation[i] = 0;
 		}

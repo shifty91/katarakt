@@ -22,10 +22,18 @@ public:
 //	QString get_label() const;
 
 private:
+	void toggle_invert_colors();
+
 	float width;
 	float height;
 	QImage img[3];
 	QImage thumbnail;
+	// for inverted colors with reduced contrast
+	// img_other contain the currently not needed color versions
+	// img store the current versions to be displayed
+	QImage img_other[3];
+	QImage thumbnail_other;
+
 //	QString label;
 	QList<Poppler::Link *> *links;
 	QMutex mutex;
