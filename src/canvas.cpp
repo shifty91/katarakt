@@ -28,6 +28,7 @@ Canvas::Canvas(Viewer *v, QWidget *parent) :
 		QWidget(parent),
 		viewer(v),
 		triple_click_possible(false),
+		last_cursor(Qt::BlankCursor),
 		valid(true) {
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -101,6 +102,7 @@ Canvas::Canvas(Viewer *v, QWidget *parent) :
 	} else {
 		setCursor(Qt::IBeamCursor);
 	}
+	last_cursor = Qt::BlankCursor;
 
 	// prints the string representation of a key
 //	cerr << QKeySequence(Qt::Key_Equal).toString().toUtf8().constData() << endl;
@@ -109,6 +111,11 @@ Canvas::Canvas(Viewer *v, QWidget *parent) :
 	goto_line->move(0, height() - goto_line->height()); // TODO goto_line->height() reports the wrong size
 	goto_line->hide();
 	connect(goto_line, SIGNAL(returnPressed()), this, SLOT(goto_page()), Qt::UniqueConnection);
+
+	hide_mouse_timeout = config->get_value("Settings/hide_mouse_timeout").toInt();
+	setMouseTracking(true);
+	hide_mouse_timer.setSingleShot(true);
+	connect(&hide_mouse_timer, SIGNAL(timeout()), this, SLOT(hide_mouse_pointer()), Qt::UniqueConnection);
 
 	page_overlay = new QLabel(this);
 	page_overlay->setMargin(1);
@@ -193,6 +200,7 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
 	if (drag_view_button != Qt::NoButton && event->button() == drag_view_button) {
 		if (cursor().shape() != Qt::PointingHandCursor) { // TODO
 			setCursor(Qt::ClosedHandCursor);
+			last_cursor = Qt::BlankCursor;
 		}
 	}
 	if (select_text_button != Qt::NoButton && event->button() == select_text_button) {
@@ -205,6 +213,7 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
 
 		if (cursor().shape() != Qt::PointingHandCursor) { // TODO
 			setCursor(Qt::IBeamCursor);
+			last_cursor = Qt::BlankCursor;
 		}
 	}
 }
@@ -230,9 +239,19 @@ void Canvas::mouseReleaseEvent(QMouseEvent *event) {
 	} else {
 		setCursor(Qt::IBeamCursor);
 	}
+	last_cursor = Qt::BlankCursor;
 
 	if (select_text_button != Qt::NoButton && event->button() == select_text_button) {
 		cur_layout->copy_selection_text();
+	}
+
+	// auto-hide mouse pointer
+	if (event->buttons() == 0) {
+		if (hide_mouse_timeout > 0) {
+			hide_mouse_timer.start(hide_mouse_timeout);
+		}
+	} else {
+		hide_mouse_timer.stop();
 	}
 }
 
@@ -260,6 +279,20 @@ void Canvas::mouseMoveEvent(QMouseEvent *event) {
 		if (event->y() > height() - margin) {
 			cur_layout->scroll_smooth(0, max(height() - event->y() - margin, -margin) * 2);
 		}
+	}
+
+	// auto-show mouse pointer
+	if (last_cursor != Qt::BlankCursor) {
+		setCursor(last_cursor);
+		last_cursor = Qt::BlankCursor;
+	}
+	// auto-hide mouse pointer
+	if (event->buttons() == 0) {
+		if (hide_mouse_timeout > 0) {
+			hide_mouse_timer.start(hide_mouse_timeout);
+		}
+	} else {
+		hide_mouse_timer.stop();
 	}
 }
 
@@ -360,6 +393,11 @@ void Canvas::disable_triple_click() {
 	triple_click_possible = false;
 }
 
+void Canvas::hide_mouse_pointer() {
+	last_cursor = cursor().shape();
+	setCursor(Qt::BlankCursor);
+}
+
 void Canvas::swap_selection_and_panning_buttons() {
 	Qt::MouseButton tmp = drag_view_button;
 	drag_view_button = select_text_button;
@@ -370,6 +408,7 @@ void Canvas::swap_selection_and_panning_buttons() {
 	} else {
 		setCursor(Qt::IBeamCursor);
 	}
+	last_cursor = Qt::BlankCursor;
 }
 
 

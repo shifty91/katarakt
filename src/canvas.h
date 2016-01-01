@@ -66,6 +66,7 @@ private slots:
 	void focus_goto();
 
 	void disable_triple_click();
+	void hide_mouse_pointer();
 
 	void swap_selection_and_panning_buttons();
 
@@ -84,7 +85,10 @@ private:
 	int mx, my;
 	int mx_down, my_down;
 	bool triple_click_possible;
-	QTimer scroll_timer;
+
+	int hide_mouse_timeout;
+	QTimer hide_mouse_timer;
+	Qt::CursorShape last_cursor;
 
 	bool valid;
 

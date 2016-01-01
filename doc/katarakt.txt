@@ -162,6 +162,9 @@ VARIABLES
 'int' *select_text_button* ::
 	1: The mouse button used for text selection. Double- and triple-clicking
 	are supported to select with word/line granularity.
+'int' *hide_mouse_timeout* ::
+	2000: The delay in milliseconds after which the mouse cursor is hidden. Set
+	to 0 to disable.
 'int' *smooth_scroll_delta* ::
 	30: Pixel offset when moving around.
 'float' *screen_scroll_factor* ::

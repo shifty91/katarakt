@@ -27,6 +27,7 @@ void CFG::init_defaults() {
 	vd.push_back("Settings/click_link_button"); defaults[vd.back()] = 1;
 	vd.push_back("Settings/drag_view_button"); defaults[vd.back()] = 2;
 	vd.push_back("Settings/select_text_button"); defaults[vd.back()] = 1;
+	vd.push_back("Settings/hide_mouse_timeout"); defaults[vd.back()] = 2000;
 	vd.push_back("Settings/smooth_scroll_delta"); defaults[vd.back()] = 30; // pixel scroll offset
 	vd.push_back("Settings/screen_scroll_factor"); defaults[vd.back()] = 0.9; // creates overlap for scrolling 1 screen down, should be <= 1
 	vd.push_back("Settings/jump_padding"); defaults[vd.back()] = 0.2; // must be <= 0.5
