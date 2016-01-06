@@ -195,7 +195,11 @@ void Worker::run() {
 			}
 
 			// sort by y coordinate
+#if QT_VERSION >= 0x050000
+			std::stable_sort(selection_parts.begin(), selection_parts.end(), selection_less_y);
+#else
 			qStableSort(selection_parts.begin(), selection_parts.end(), selection_less_y);
+#endif
 
 			QRectF line_box;
 			QList<SelectionLine *> *lines = new QList<SelectionLine *>();
