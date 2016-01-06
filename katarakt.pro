@@ -5,9 +5,20 @@ INCLUDEPATH += .
 CONFIG += qt
 QT += network xml dbus
 
-DEFINES += "POPPLER_VERSION_MAJOR=`pkg-config --modversion poppler-qt4 | cut -d . -f 1`"
-DEFINES += "POPPLER_VERSION_MINOR=`pkg-config --modversion poppler-qt4 | cut -d . -f 2`"
-DEFINES += "POPPLER_VERSION_MICRO=`pkg-config --modversion poppler-qt4 | cut -d . -f 3`"
+unix {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += poppler-qt4
+
+    isEmpty(PKG_CONFIG):PKG_CONFIG = pkg-config    # same as in link_pkgconfig.prf
+    POPPLER_VERSION = $$system($$PKG_CONFIG --modversion poppler-qt4)
+    POPPLER_VERSION_MAJOR = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 1)
+    POPPLER_VERSION_MINOR = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 2)
+    POPPLER_VERSION_MICRO = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 3)
+
+    DEFINES += POPPLER_VERSION_MAJOR=$$POPPLER_VERSION_MAJOR
+    DEFINES += POPPLER_VERSION_MINOR=$$POPPLER_VERSION_MINOR
+    DEFINES += POPPLER_VERSION_MICRO=$$POPPLER_VERSION_MICRO
+}
 
 QMAKE_CXXFLAGS_DEBUG += -DDEBUG
 
@@ -22,7 +33,6 @@ SOURCES +=  src/main.cpp \
             src/viewer.cpp src/canvas.cpp src/resourcemanager.cpp src/grid.cpp src/search.cpp src/gotoline.cpp src/config.cpp \
             src/download.cpp src/util.cpp src/kpage.cpp src/worker.cpp src/beamerwindow.cpp src/toc.cpp src/splitter.cpp \
             src/selection.cpp src/dbus/source_correlate.cpp src/dbus/dbus.cpp
-unix:LIBS += -lpoppler-qt4
 
 documentation.target = doc/katarakt.1
 documentation.depends = doc/katarakt.txt
