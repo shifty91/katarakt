@@ -1,7 +1,11 @@
 #ifndef RESOURCEMANAGER_H
 #define RESOURCEMANAGER_H
 
+#if POPPLER_QT >= 5
+#include <poppler-qt5.h>
+#else
 #include <poppler-qt4.h>
+#endif
 #include <QObject>
 #include <QString>
 #include <QImage>

@@ -5,12 +5,19 @@ INCLUDEPATH += .
 CONFIG += qt
 QT += network xml dbus
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+    DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
+}
+POPPLER = poppler-qt$$QT_MAJOR_VERSION
+DEFINES += POPPLER_QT=$$QT_MAJOR_VERSION
+
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += poppler-qt4
+    PKGCONFIG += $$POPPLER
 
     isEmpty(PKG_CONFIG):PKG_CONFIG = pkg-config    # same as in link_pkgconfig.prf
-    POPPLER_VERSION = $$system($$PKG_CONFIG --modversion poppler-qt4)
+    POPPLER_VERSION = $$system($$PKG_CONFIG --modversion $$POPPLER)
     POPPLER_VERSION_MAJOR = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 1)
     POPPLER_VERSION_MINOR = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 2)
     POPPLER_VERSION_MICRO = $$system(echo "$$POPPLER_VERSION" | cut -d . -f 3)

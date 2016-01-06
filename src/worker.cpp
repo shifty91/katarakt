@@ -7,7 +7,11 @@
 #include "config.h"
 #include <list>
 #include <iostream>
+#if POPPLER_QT >= 5
+#include <poppler-qt5.h>
+#else
 #include <poppler-qt4.h>
+#endif
 
 using namespace std;
 
