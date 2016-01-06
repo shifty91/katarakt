@@ -20,8 +20,13 @@ Toc::Toc(Viewer *v, QWidget *parent) :
 
 	QHeaderView *h = header();
 	h->setStretchLastSection(false);
+#if QT_VERSION >= 0x050000
+	h->setSectionResizeMode(0, QHeaderView::Stretch);
+	h->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+#else
 	h->setResizeMode(0, QHeaderView::Stretch);
 	h->setResizeMode(1, QHeaderView::ResizeToContents);
+#endif
 
 	QStringList list = QStringList() << "Contents" << QString();
 	setHeaderLabels(list);
