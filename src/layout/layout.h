@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QList>
 #include <QClipboard>
-#include <poppler/qt4/poppler-qt4.h>
+#include <poppler-qt4.h>
 #include <map>
 #include "../selection.h"
 

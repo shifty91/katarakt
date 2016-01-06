@@ -1,7 +1,7 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include <poppler/qt4/poppler-qt4.h>
+#include <poppler-qt4.h>
 #include <QString>
 #include <QThread>
 #include <QMutex>

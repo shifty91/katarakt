@@ -7,7 +7,7 @@
 #include "config.h"
 #include <list>
 #include <iostream>
-#include <poppler/qt4/poppler-qt4.h>
+#include <poppler-qt4.h>
 
 using namespace std;
 

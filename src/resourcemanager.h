@@ -1,7 +1,7 @@
 #ifndef RESOURCEMANAGER_H
 #define RESOURCEMANAGER_H
 
-#include <poppler/qt4/poppler-qt4.h>
+#include <poppler-qt4.h>
 #include <QObject>
 #include <QString>
 #include <QImage>
