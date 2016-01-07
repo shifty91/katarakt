@@ -23,6 +23,7 @@ void SearchWorker::run() {
 		bar->search_mutex.lock();
 		stop = false;
 		if (die) {
+			bar->search_mutex.unlock();
 			break;
 		}
 		// always clear results -> empty search == stop search
