@@ -7,10 +7,10 @@
 #include "config.h"
 #include <list>
 #include <iostream>
-#if POPPLER_QT >= 5
-#include <poppler-qt5.h>
+#if QT_VERSION >= 0x050000
+#	include <poppler-qt5.h>
 #else
-#include <poppler-qt4.h>
+#	include <poppler-qt4.h>
 #endif
 
 using namespace std;
@@ -195,11 +195,7 @@ void Worker::run() {
 			}
 
 			// sort by y coordinate
-#if QT_VERSION >= 0x050000
-			std::stable_sort(selection_parts.begin(), selection_parts.end(), selection_less_y);
-#else
-			qStableSort(selection_parts.begin(), selection_parts.end(), selection_less_y);
-#endif
+			stable_sort(selection_parts.begin(), selection_parts.end(), selection_less_y);
 
 			QRectF line_box;
 			QList<SelectionLine *> *lines = new QList<SelectionLine *>();

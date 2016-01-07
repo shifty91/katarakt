@@ -1,11 +1,6 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#if POPPLER_QT >= 5
-#include <poppler-qt5.h>
-#else
-#include <poppler-qt4.h>
-#endif
 #include <QString>
 #include <QThread>
 #include <QMutex>
@@ -16,6 +11,11 @@
 #include <QRect>
 #include <QEvent>
 #include <QList>
+#if QT_VERSION >= 0x050000
+#	include <poppler-qt5.h>
+#else
+#	include <poppler-qt4.h>
+#endif
 
 
 class SearchBar;

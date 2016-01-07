@@ -10,7 +10,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     DEFINES += QT_DEPRECATED_WARNINGS
 }
 POPPLER = poppler-qt$$QT_MAJOR_VERSION
-DEFINES += POPPLER_QT=$$QT_MAJOR_VERSION
 
 unix {
     CONFIG += link_pkgconfig

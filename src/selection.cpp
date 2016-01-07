@@ -59,11 +59,7 @@ QRectF SelectionLine::get_bbox() const {
 }
 
 void SelectionLine::sort() {
-#if QT_VERSION >= 0x050000
-	std::stable_sort(parts.begin(), parts.end(), selection_less_x);
-#else
-	qStableSort(parts.begin(), parts.end(), selection_less_x);
-#endif
+	stable_sort(parts.begin(), parts.end(), selection_less_x);
 }
 
 bool selection_less_x(const SelectionPart *a, const SelectionPart *b) {
