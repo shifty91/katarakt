@@ -26,6 +26,19 @@ class QDomDocument;
 class SelectionLine;
 
 
+class Request {
+public:
+	Request(int width, int index);
+
+	int get_lowest_index();
+	bool has_index(int index);
+	bool remove_index_ok(int index);
+	void update(int width, int index);
+
+	int width[3];
+};
+
+
 class ResourceManager : public QObject {
 	Q_OBJECT
 
@@ -94,8 +107,8 @@ private:
 	int center_page;
 	float max_aspect;
 	float min_aspect;
-	std::map<int,std::pair<int,int> > requests; // page, index, width
-	std::set<int> garbage;
+	std::map<int, Request> requests; // page, index, width
+	std::set<int> garbage[3];
 	QMutex link_mutex;
 
 	KPage *k_page;

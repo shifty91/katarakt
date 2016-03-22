@@ -35,34 +35,32 @@ void Worker::run() {
 		// get next page to render
 		res->requestMutex.lock();
 		int page, width, index;
-		map<int,pair<int,int> >::iterator less = res->requests.lower_bound(res->center_page);
-		map<int,pair<int,int> >::iterator greater = less--;
+		map<int,Request>::iterator less = res->requests.lower_bound(res->center_page);
+		map<int,Request>::iterator greater = less--;
+		map<int,Request>::iterator closest;
 
 		if (greater != res->requests.end()) {
 			if (greater != res->requests.begin()) {
 				// favour nearby page, go down first
 				if (greater->first + less->first <= res->center_page * 2) {
-					page = greater->first;
-					index = greater->second.first;
-					width = greater->second.second;
-					res->requests.erase(greater);
+					closest = greater;
 				} else {
-					page = less->first;
-					index = less->second.first;
-					width = less->second.second;
-					res->requests.erase(less);
+					closest = less;
 				}
 			} else {
-				page = greater->first;
-				index = greater->second.first;
-				width = greater->second.second;
-				res->requests.erase(greater);
+				closest = greater;
 			}
 		} else {
-			page = less->first;
-			index = less->second.first;
-			width = less->second.second;
-			res->requests.erase(less);
+			closest = less;
+		}
+
+		page = closest->first;
+		index = closest->second.get_lowest_index();
+		width = closest->second.width[index];
+		if (closest->second.remove_index_ok(index)) {
+			res->requestSemaphore.release(1);
+		} else {
+			res->requests.erase(closest);
 		}
 		res->requestMutex.unlock();
 

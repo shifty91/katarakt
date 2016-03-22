@@ -20,6 +20,42 @@
 using namespace std;
 
 
+Request::Request(int width, int index) {
+	for (int i = 0; i < 3; i++) {
+		this->width[i] = -1;
+	}
+	this->width[index] = width;
+}
+
+int Request::get_lowest_index() {
+	for (int i = 0; i < 3; i++) {
+		if (width[i] != -1) {
+			return i;
+		}
+	}
+	// will not happen
+	return 0;
+}
+
+bool Request::has_index(int index) {
+	return width[index] != -1;
+}
+
+bool Request::remove_index_ok(int index) {
+	width[index] = -1;
+	for (int i = 0; i < 3; i++) {
+		if (width[i] != -1) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Request::update(int width, int index) {
+	this->width[index] = width;
+}
+
+
 ResourceManager::ResourceManager(const QString &file, Viewer *v) :
 		viewer(v),
 		file(file),
@@ -251,10 +287,12 @@ void ResourceManager::collect_garbage(int keep_min, int keep_max, int index) {
 		return;
 	}
 	requestMutex.lock();
-	for (map<int,pair<int,int> >::iterator it = requests.begin(); it != requests.end(); ) {
-		if (it->first < keep_min || it->first > keep_max) {
-			requestSemaphore.acquire(1);
-			requests.erase(it++);
+	for (map<int,Request>::iterator it = requests.begin(); it != requests.end(); ) {
+		if ((it->first < keep_min || it->first > keep_max) && it->second.has_index(index)) {
+			if (!it->second.remove_index_ok(index)) { // no index left in request -> delete
+				requestSemaphore.acquire(1);
+				requests.erase(it++);
+			}
 		} else {
 			++it;
 		}
@@ -350,14 +388,12 @@ void ResourceManager::inotify_slot() {
 
 void ResourceManager::enqueue(int page, int width, int index) {
 	requestMutex.lock();
-	map<int,pair<int,int> >::iterator it = requests.find(page);
+	map<int,Request>::iterator it = requests.find(page);
 	if (it == requests.end()) {
-		requests[page] = make_pair(index, width);
+		requests.insert(make_pair(page, Request(width, index)));
 		requestSemaphore.release(1);
 	} else {
-		if (index <= it->second.first) {
-			it->second = make_pair(index, width);
-		}
+		it->second.update(width, index);
 	}
 	requestMutex.unlock();
 }
