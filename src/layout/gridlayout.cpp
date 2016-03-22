@@ -420,7 +420,7 @@ void GridLayout::render(QPainter *painter) {
 	}
 
 	last_visible_page = last_page;
-	res->collect_garbage(page + horizontal_page - grid->get_offset() - prefetch_count * 3, last_page + prefetch_count * 3);
+	res->collect_garbage(page + horizontal_page - grid->get_offset() - prefetch_count * 3, last_page + prefetch_count * 3, render_index);
 
 	// prefetch
 	int prefetch_first = page + horizontal_page - grid->get_offset() - 1;

@@ -14,6 +14,7 @@ using namespace std;
 BeamerWindow::BeamerWindow(Viewer *v, QWidget *parent) :
 		QWidget(parent),
 		viewer(v),
+		frozen(false),
 		valid(false) {
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -36,6 +37,15 @@ BeamerWindow::BeamerWindow(Viewer *v, QWidget *parent) :
 
 BeamerWindow::~BeamerWindow() {
 	delete layout;
+}
+
+void BeamerWindow::freeze(bool f) {
+	frozen = f;
+	viewer->get_canvas()->update_page_overlay();
+}
+
+bool BeamerWindow::is_frozen() const {
+	return frozen;
 }
 
 bool BeamerWindow::is_valid() const {

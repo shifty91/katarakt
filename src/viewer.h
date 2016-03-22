@@ -83,6 +83,7 @@ private slots:
 	void open(); // ask user for filename
 	void save();
 	void toggle_toc();
+	void freeze_presentation();
 
 private:
 	void update_info_widget();

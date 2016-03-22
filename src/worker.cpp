@@ -84,7 +84,7 @@ void Worker::run() {
 
 		// open page
 #ifdef DEBUG
-		cerr << "    rendering page " << page << " for index " << index << endl;
+		cerr << "    rendering page " << page << " for index " << index << ", center: " << res->center_page << endl;
 #endif
 		Poppler::Page *p = NULL;
 		if (render_new) {
@@ -153,7 +153,7 @@ void Worker::run() {
 		kp.mutex.unlock();
 
 		res->garbageMutex.lock();
-		res->garbage.insert(page); // TODO add index information?
+		res->garbage[index].insert(page);
 		res->garbageMutex.unlock();
 
 		emit page_rendered(page);

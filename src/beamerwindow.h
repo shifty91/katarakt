@@ -15,6 +15,9 @@ public:
 	BeamerWindow(Viewer *v, QWidget *parent = 0);
 	~BeamerWindow();
 
+	void freeze(bool f);
+	bool is_frozen() const;
+
 	bool is_valid() const;
 
 	Layout *get_layout() const;
@@ -43,6 +46,7 @@ private:
 
 	Qt::MouseButton click_link_button;
 
+	bool frozen;
 	bool valid;
 };
 

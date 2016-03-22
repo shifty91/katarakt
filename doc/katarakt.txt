@@ -26,7 +26,7 @@ pixel) scrolling, zooming and adjusting the column count. Pages keep their
 correct relative size and are shown in a grid.
 
 The 'presenter layout' is for giving a presentation. It opens a second window,
-to be viewed on the beamer, and shows the current and next slide in the main
+to be viewed on the projector, and shows the current and next slide in the main
 window.
 
 For every file passed on the command line a separate process is spawned.
@@ -73,7 +73,7 @@ KEY BINDINGS
 *3* ::
 	Switch to 'presenter layout'. Views the current page and a smaller preview
 	of the next page. Also, opens a second window that shows only the current
-	page for displaying on a beamer.
+	page for displaying on a projector.
 
 *Up*, *Down*, *Left*, *Right*, *k*, *j*, *h*, *l* ::
 	Move around (up/down/left/right).
@@ -138,6 +138,9 @@ KEY BINDINGS
 	Show a file dialog to save the current document.
 *F9* ::
 	Toggle the table of contents.
+*x* ::
+	Toggle freezing the slide currently displayed in the projector window. When
+	frozen, scrolling only affects the main window.
 
 VARIABLES
 ---------

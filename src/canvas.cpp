@@ -168,10 +168,14 @@ Layout *Canvas::get_layout() const {
 }
 
 void Canvas::update_page_overlay() {
+	QString frozen_text;
+	if (viewer->get_beamer()->is_frozen()) {
+		frozen_text = QString("Frozen: %1, ").arg(viewer->get_beamer()->get_layout()->get_page() + 1);
+	}
 	QString overlay_text = CFG::get_instance()->get_value("Settings/page_overlay_text").toString()
 		.arg(cur_layout->get_page() + 1)
 		.arg(viewer->get_res()->get_page_count());
-	page_overlay->setText(overlay_text);
+	page_overlay->setText(frozen_text + overlay_text);
 	page_overlay->adjustSize();
 	page_overlay->move(width() - page_overlay->width(), height() - page_overlay->height());
 }
@@ -371,7 +375,9 @@ void Canvas::set_presenter_layout() {
 //		int cur_screen = desktop->screenNumber(viewer);
 //		cout << "primary: " << primary_screen << ", current: " << cur_screen << endl;
 //	}
-	viewer->get_beamer()->get_layout()->scroll_page(cur_layout->get_page(), false);
+	if (!viewer->get_beamer()->is_frozen()) {
+		viewer->get_beamer()->get_layout()->scroll_page(cur_layout->get_page(), false);
+	}
 	viewer->get_beamer()->show();
 	viewer->show_progress(true);
 }

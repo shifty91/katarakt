@@ -132,7 +132,9 @@ void ResourceManager::shutdown() {
 		join_threads();
 	}
 	garbageMutex.lock();
-	garbage.clear();
+	for (int i = 0; i < 3; i++) {
+		garbage[i].clear();
+	}
 	garbageMutex.unlock();
 	requests.clear();
 	requestSemaphore.acquire(requestSemaphore.available());
@@ -217,29 +219,29 @@ bool ResourceManager::are_colors_inverted() const {
 	return inverted_colors;
 }
 
-void ResourceManager::collect_garbage(int keep_min, int keep_max) {
+void ResourceManager::collect_garbage(int keep_min, int keep_max, int index) {
 	requestMutex.lock();
-	center_page = (keep_min + keep_max) / 2;
+	if (index == 0) { // make a separate center_page for each index?
+		center_page = (keep_min + keep_max) / 2;
+	}
 	requestMutex.unlock();
 	// free distant pages
 	garbageMutex.lock();
-	for (set<int>::iterator it = garbage.begin(); it != garbage.end(); /* empty */) {
+	for (set<int>::iterator it = garbage[index].begin(); it != garbage[index].end(); /* empty */) {
 		int page = *it;
 		if (page >= keep_min && page <= keep_max) {
 			++it; // move on
 			continue;
 		}
-		garbage.erase(it++); // erase and move on (iterator becomes invalid)
+		garbage[index].erase(it++); // erase and move on (iterator becomes invalid)
 #ifdef DEBUG
 		cerr << "    removing page " << page << endl;
 #endif
 		k_page[page].mutex.lock();
-		for (int i = 0; i < 3; i++) {
-			k_page[page].img[i] = QImage();
-			k_page[page].img_other[i] = QImage();
-			k_page[page].status[i] = 0;
-			k_page[page].rotation[i] = 0;
-		}
+		k_page[page].img[index] = QImage();
+		k_page[page].img_other[index] = QImage();
+		k_page[page].status[index] = 0;
+		k_page[page].rotation[index] = 0;
 		k_page[page].mutex.unlock();
 	}
 	garbageMutex.unlock();

@@ -101,6 +101,7 @@ void CFG::init_defaults() {
 	vk.push_back("Keys/open"); keys[vk.back()] = QStringList() << "O";
 	vk.push_back("Keys/save"); keys[vk.back()] = QStringList() << "S";
 	vk.push_back("Keys/toggle_toc"); keys[vk.back()] = QStringList() << "F9";
+	vk.push_back("Keys/freeze_presentation"); keys[vk.back()] = QStringList() << "X";
 
 	// tmp values
 	tmp_values["start_page"] = 0;

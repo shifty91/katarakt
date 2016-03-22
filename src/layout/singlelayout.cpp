@@ -112,7 +112,7 @@ void SingleLayout::render(QPainter *painter) {
 			res->unlock_page(page - count);
 		}
 	}
-	res->collect_garbage(page - prefetch_count * 3, page + prefetch_count * 3);
+	res->collect_garbage(page - prefetch_count * 3, page + prefetch_count * 3, render_index);
 }
 
 void SingleLayout::advance_invisible_hit(bool forward) {

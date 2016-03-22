@@ -444,6 +444,15 @@ void Viewer::toggle_toc() {
 	toc->setFocus(Qt::OtherFocusReason); // only works if shown
 }
 
+void Viewer::freeze_presentation() {
+	if (beamer->is_frozen()) {
+		beamer->freeze(false);
+		beamer->get_layout()->scroll_page(canvas->get_layout()->get_page(), false);
+	} else {
+		beamer->freeze(true);
+	}
+}
+
 void Viewer::update_info_widget() {
 	if (!res->is_valid() || !search_bar->is_valid()) {
 		QIcon icon;
@@ -499,7 +508,7 @@ BeamerWindow *Viewer::get_beamer() const {
 void Viewer::layout_updated(int new_page, bool page_changed) {
 	if (page_changed) {
 		canvas->get_layout()->scroll_page(new_page, false);
-		if (beamer->isVisible()) {
+		if (beamer->isVisible() && !beamer->is_frozen()) {
 			beamer->get_layout()->scroll_page(new_page, false);
 		}
 		// TODO unfold toc tree to show current entry?
@@ -584,5 +593,6 @@ void Viewer::setup_keys(QWidget *base) {
 	add_action(base, "Keys/open", SLOT(open()), this);
 	add_action(base, "Keys/save", SLOT(save()), this);
 	add_action(base, "Keys/toggle_toc", SLOT(toggle_toc()), this);
+	add_action(base, "Keys/freeze_presentation", SLOT(freeze_presentation()), this);
 }
 

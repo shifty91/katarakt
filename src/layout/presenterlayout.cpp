@@ -190,7 +190,9 @@ void PresenterLayout::render(QPainter *painter) {
 			res->unlock_page(page - count);
 		}
 	}
-	res->collect_garbage(page - prefetch_count * 3, page + 1 + prefetch_count * 3);
+	for (int i = 0; i < 2; i++) {
+		res->collect_garbage(page - prefetch_count * 3, page + 1 + prefetch_count * 3, render_index + i);
+	}
 }
 
 void PresenterLayout::advance_invisible_hit(bool forward) {

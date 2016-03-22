@@ -60,7 +60,7 @@ public:
 	void invert_colors();
 	bool are_colors_inverted() const;
 
-	void collect_garbage(int keep_min, int keep_max);
+	void collect_garbage(int keep_min, int keep_max, int index);
 
 	void connect_canvas() const;
 
