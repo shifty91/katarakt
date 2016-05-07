@@ -264,6 +264,33 @@ void Canvas::mouseMoveEvent(QMouseEvent *event) {
 		cur_layout->scroll_smooth(event->x() - mx, event->y() - my);
 		mx = event->x();
 		my = event->y();
+
+        // wrap mouse around when dragging at the border
+        if (mx <= 0) {
+            mx = width() - 2;
+            QCursor c = cursor();
+            c.setPos(mapToGlobal(QPoint(mx, my)));
+            setCursor(c);
+        }
+        if (mx >= width() - 1) {
+            mx = 1;
+            QCursor c = cursor();
+            c.setPos(mapToGlobal(QPoint(mx, my)));
+            setCursor(c);
+        }
+
+        if (my <= 0) {
+            my = height() - 2;
+            QCursor c = cursor();
+            c.setPos(mapToGlobal(QPoint(mx, my)));
+            setCursor(c);
+        }
+        if (my >= height() - 1) {
+            my = 1;
+            QCursor c = cursor();
+            c.setPos(mapToGlobal(QPoint(mx, my)));
+            setCursor(c);
+        }
 	}
 	if (select_text_button != Qt::NoButton && event->buttons() & select_text_button) {
 		cur_layout->select(event->x(), event->y(), Selection::End);
