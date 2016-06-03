@@ -33,7 +33,7 @@ void SearchWorker::run() {
 		bar->term_mutex.lock();
 		if (bar->term.isEmpty()) {
 			bar->term_mutex.unlock();
-			emit update_label_text("done.");
+			emit update_label_text(QString::fromUtf8("done."));
 			continue;
 		}
 		int start = bar->start_page;
@@ -53,8 +53,8 @@ void SearchWorker::run() {
 #ifdef DEBUG
 		cerr << "'" << search_term.toUtf8().constData() << "'" << endl;
 #endif
-		emit update_label_text(QString("[%1] 0\% searched, 0 hits")
-			.arg(has_upper_case ? "Case" : "no case"));
+		emit update_label_text(QString::fromUtf8("[%1] 0\% searched, 0 hits")
+			.arg(has_upper_case ? QString::fromUtf8("Case") : QString::fromUtf8("no case")));
 
 		// search all pages
 		int hit_count = 0;
@@ -116,8 +116,8 @@ void SearchWorker::run() {
 				percent = start + bar->doc->numPages() - page;
 			}
 			percent = (percent % bar->doc->numPages()) * 100 / bar->doc->numPages();
-			QString progress = QString("[%1] %2\% searched, %3 hits")
-				.arg(has_upper_case ? "Case" : "no case")
+			QString progress = QString::fromUtf8("[%1] %2\% searched, %3 hits")
+				.arg(has_upper_case ? QString::fromUtf8("Case") : QString::fromUtf8("no case"))
 				.arg(percent)
 				.arg(hit_count);
 			emit update_label_text(progress);
@@ -135,8 +135,8 @@ void SearchWorker::run() {
 #ifdef DEBUG
 		cerr << "done!" << endl;
 #endif
-		emit update_label_text(QString("[%1] done, %2 hits")
-				.arg(has_upper_case ? "Case" : "no case")
+		emit update_label_text(QString::fromUtf8("[%1] done, %2 hits")
+				.arg(has_upper_case ? QString::fromUtf8("Case") : QString::fromUtf8("no case"))
 				.arg(hit_count));
 	}
 }
@@ -149,7 +149,7 @@ SearchBar::SearchBar(const QString &file, Viewer *v, QWidget *parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	line = new QLineEdit(parent);
 
-	progress = new QLabel("done.");
+	progress = new QLabel(QString::fromUtf8("done."));
 	progress->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
 	layout = new QHBoxLayout();
@@ -252,8 +252,8 @@ bool SearchBar::event(QEvent *event) {
 
 void SearchBar::reset_search() {
 	clear_hits();
-	term = "";
-	progress->setText("done.");
+	term = QString();
+	progress->setText(QString::fromUtf8("done."));
 	viewer->get_canvas()->set_search_visible(false);
 	viewer->get_canvas()->setFocus(Qt::OtherFocusReason);
 	hide();

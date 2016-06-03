@@ -87,9 +87,9 @@ Canvas::Canvas(Viewer *v, QWidget *parent) :
 	presenter_layout = new PresenterLayout(viewer, 1);
 
 	QString default_layout = config->get_value("Settings/default_layout").toString();
-	if (default_layout == "grid") {
+	if (default_layout == QString::fromUtf8("grid")) {
 		cur_layout = grid_layout;
-	} else if (default_layout == "presenter") {
+	} else if (default_layout == QString::fromUtf8("presenter")) {
 		cur_layout = presenter_layout;
 	} else { // "single" and everything else
 		cur_layout = single_layout;
@@ -170,7 +170,7 @@ Layout *Canvas::get_layout() const {
 void Canvas::update_page_overlay() {
 	QString frozen_text;
 	if (viewer->get_beamer()->is_frozen()) {
-		frozen_text = QString("Frozen: %1, ").arg(viewer->get_beamer()->get_layout()->get_page() + 1);
+		frozen_text = QString::fromUtf8("Frozen: %1, ").arg(viewer->get_beamer()->get_layout()->get_page() + 1);
 	}
 	QString overlay_text = CFG::get_instance()->get_value("Settings/page_overlay_text").toString()
 		.arg(cur_layout->get_page() + 1)

@@ -256,7 +256,7 @@ void Layout::clear_selection() {
 	selection.deactivate();
 
 	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText("", QClipboard::Selection);
+	clipboard->setText(QString(), QClipboard::Selection);
 }
 
 void Layout::render_search_rects(QPainter *painter, int cur_page, QPoint offset, float size) {

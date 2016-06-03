@@ -67,7 +67,8 @@ int main(int argc, char *argv[]) {
 				CFG::get_instance()->set_tmp_value("fullscreen", true);
 				break;
 			case 'q':
-				CFG::get_instance()->set_tmp_value("Settings/quit_on_init_fail", optarg);
+				// use locale for everything from the command line
+				CFG::get_instance()->set_tmp_value("Settings/quit_on_init_fail", QString::fromLocal8Bit(optarg));
 				break;
 			case 'h':
 				print_help(argv[0]);
@@ -75,7 +76,7 @@ int main(int argc, char *argv[]) {
 			case 's':
 				// (according to QVariant) any string can be converted to
 				// bool, so no type check needed here
-				CFG::get_instance()->set_tmp_value("Settings/single_instance_per_file", optarg);
+				CFG::get_instance()->set_tmp_value("Settings/single_instance_per_file", QString::fromLocal8Bit(optarg));
 				break;
 			case 'c':
 				CFG::write_defaults(optarg);
@@ -90,18 +91,18 @@ int main(int argc, char *argv[]) {
 	if (optind < argc - 1) {
 		QStringList l;
 		for (int i = optind + 1; i < argc; i++) {
-			l << argv[i];
+			l << QString::fromLocal8Bit(argv[i]);
 		}
-		QProcess::startDetached(argv[0], l);
+		QProcess::startDetached(QString::fromLocal8Bit(argv[0]), l);
 	}
 
 	QString file;
 	Download download;
 	if (argv[optind] != NULL) {
 		if (download_url) {
-			file = download.load(QString::fromUtf8(argv[optind]));
+			file = download.load(QString::fromLocal8Bit(argv[optind]));
 		} else {
-			file = QString::fromUtf8(argv[optind]);
+			file = QString::fromLocal8Bit(argv[optind]);
 		}
 		if (file.isNull()) {
 			return 1;

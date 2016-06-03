@@ -441,13 +441,13 @@ QString MouseSelection::get_selection_text(int page, const QList<SelectionLine *
 							}
 
 							if (add_space) {
-								text += " ";
+								text += QChar::fromLatin1(' ');
 								add_space = false;
 							}
 							// big gap in front of current box, add <tab>
 							if (word == 0 && part == last_x_index + 1) {
 								if (box->boundingBox().left() - last_x > box->boundingBox().height()) {
-									text += "\t";
+									text += QChar::fromLatin1('\t');
 								}
 							}
 
@@ -467,7 +467,7 @@ QString MouseSelection::get_selection_text(int page, const QList<SelectionLine *
 				if (line + 1 < lines->size()) {
 					from.set_beginning_of_line(lines->at(line + 1), true);
 					if (line < to.line) {
-						text += "\n";
+						text += QChar::fromLatin1('\n');
 					}
 				}
 			}

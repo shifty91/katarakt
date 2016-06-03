@@ -214,14 +214,14 @@ void Viewer::open(QString new_file) {
 }
 
 void Viewer::open() {
-	QString new_file = QFileDialog::getOpenFileName(this, "Open File", "", "PDF Files (*.pdf)");
+	QString new_file = QFileDialog::getOpenFileName(this, QString::fromUtf8("Open File"), QString(), QString::fromUtf8("PDF Files (*.pdf)"));
 	if (!new_file.isNull()) {
 		open(new_file);
 	}
 }
 
 void Viewer::save() {
-	QString new_file = QFileDialog::getSaveFileName(this, "Save File", "", "PDF Files (*.pdf)");
+	QString new_file = QFileDialog::getSaveFileName(this, QString::fromUtf8("Save File"), QString(), QString::fromUtf8("PDF Files (*.pdf)"));
 	if (!new_file.isNull()) {
 		// file exists? Remove it (qt doesn't overwrite)
 		QFile f(new_file);
@@ -458,25 +458,25 @@ void Viewer::update_info_widget() {
 		QIcon icon;
 		const QString file = res->get_file();
 
-		if (file == "") {
-			icon = QIcon::fromTheme("dialog-information");
+		if (file.isEmpty()) {
+			icon = QIcon::fromTheme(QString::fromUtf8("dialog-information"));
 
 			info_label_text.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-			info_label_text.setText("No file opened.");
+			info_label_text.setText(QString::fromUtf8("No file opened."));
 			info_password.hide();
 		} else if (!res->is_locked()) {
-			icon = QIcon::fromTheme("dialog-error");
+			icon = QIcon::fromTheme(QString::fromUtf8("dialog-error"));
 
 			info_label_text.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 			info_label_text.setText(
-				QString("Failed to open file '") + file + QString("'."));
+				QString::fromUtf8("Failed to open file '") + file + QString::fromUtf8("'."));
 
 			info_password.hide();
 		} else {
-			icon = QIcon::fromTheme("dialog-password");
+			icon = QIcon::fromTheme(QString::fromUtf8("dialog-password"));
 
 			info_label_text.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-			info_label_text.setText("password:");
+			info_label_text.setText(QString::fromUtf8("password:"));
 
 			info_password.show();
 			info_password.setFocus(Qt::OtherFocusReason);

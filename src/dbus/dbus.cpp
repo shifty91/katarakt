@@ -25,14 +25,14 @@ void dbus_init(Viewer *viewer) {
 	 */
 	new SourceCorrelate(viewer);
 
-	QString bus_name = QString("katarakt.pid%1").arg(QApplication::applicationPid());
+	QString bus_name = QString::fromUtf8("katarakt.pid%1").arg(QApplication::applicationPid());
 
 	if (!QDBusConnection::sessionBus().registerService(bus_name)) {
 #ifdef DEBUG
 		cerr << "Failed to register DBus service" << endl;
 #endif	
 	} else {
-		if (!QDBusConnection::sessionBus().registerObject("/", viewer)) {
+		if (!QDBusConnection::sessionBus().registerObject(QString::fromUtf8("/"), viewer)) {
 #ifdef DEBUG
 			cerr << "Failed to register viewer object on DBus" << endl;
 #endif
@@ -49,13 +49,13 @@ bool activate_katarakt_with_file(QString file) {
 	QString filepath = QFileInfo(file).absoluteFilePath();
 	QDBusConnection bus = QDBusConnection::sessionBus();
 	QStringList services = bus.interface()->registeredServiceNames().value();
-	QStringList katarakts = services.filter(QRegExp("^katarakt\\.pid"));
+	QStringList katarakts = services.filter(QRegExp(QString::fromUtf8("^katarakt\\.pid")));
 	foreach (const QString& katarakt_service, katarakts) {
-		QDBusInterface dbus_iface(katarakt_service, "/", "katarakt.SourceCorrelate", bus);
-		QDBusReply<QString> reply = dbus_iface.call("filepath");
+		QDBusInterface dbus_iface(katarakt_service, QString::fromUtf8("/"), QString::fromUtf8("katarakt.SourceCorrelate"), bus);
+		QDBusReply<QString> reply = dbus_iface.call(QString::fromUtf8("filepath"));
 		if (reply.isValid()) {
 			if (reply.value() == filepath) {
-				dbus_iface.call("focus");
+				dbus_iface.call(QString::fromUtf8("focus"));
 				return true;
 			}
 		}

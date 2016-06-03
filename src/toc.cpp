@@ -28,7 +28,7 @@ Toc::Toc(Viewer *v, QWidget *parent) :
 	h->setResizeMode(1, QHeaderView::ResizeToContents);
 #endif
 
-	QStringList list = QStringList() << "Contents" << QString();
+	QStringList list = QStringList() << QString::fromUtf8("Contents") << QString();
 	setHeaderLabels(list);
 
 	setAlternatingRowColors(true);
@@ -49,7 +49,7 @@ void Toc::init() {
 
 	// indicate empty toc
 	if (topLevelItemCount() == 0) {
-		QTreeWidgetItem *item = new QTreeWidgetItem(invisibleRootItem(), QStringList("(empty)"));
+		QTreeWidgetItem *item = new QTreeWidgetItem(invisibleRootItem(), QStringList(QString::fromUtf8("(empty)")));
 		item->setFlags(Qt::NoItemFlags);
 	}
 }
@@ -122,13 +122,13 @@ void Toc::build(QDomNode *node, QTreeWidgetItem *parent) {
 		QStringList strings;
 		strings << n.nodeName();
 		QDomNamedNodeMap attributes = n.attributes();
-		QDomNode dest = attributes.namedItem("Destination");
+		QDomNode dest = attributes.namedItem(QString::fromUtf8("Destination"));
 		Poppler::LinkDestination *link = NULL;
 		if (!dest.isNull()) {
 //			strings << dest.nodeValue();
 			link = new Poppler::LinkDestination(dest.nodeValue());
 		} else {
-			dest = attributes.namedItem("DestinationName");
+			dest = attributes.namedItem(QString::fromUtf8("DestinationName"));
 			if (!dest.isNull()) {
 				link = viewer->get_res()->resolve_link_destination(dest.nodeValue());
 //				if (dest_page >= 0) {

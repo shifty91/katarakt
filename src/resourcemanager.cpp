@@ -372,7 +372,7 @@ void ResourceManager::inotify_slot() {
 			struct inotify_event *event = reinterpret_cast<struct inotify_event *>(&buf[offset]);
 
 			QFileInfo info(file);
-			if (info.fileName() == event->name) {
+			if (info.fileName() == QString::fromLocal8Bit(event->name)) {
 				viewer->reload(false); // don't clamp
 				i_notifier->setEnabled(true);
 				return;

@@ -27,6 +27,12 @@ private:
 	QHash<QString,QVariant> tmp_values; // not persistent
 	QHash<QString,QStringList> keys;
 
+	void default_setting(const char* name, const char *value);
+	template <typename T>
+	void default_setting(const char* name, const T value);
+
+	void default_key(const char* action, const char *key1, const char *key2);
+
 public:
 	static CFG *get_instance();
 	static void write_defaults(const char *file); // write defaults to file

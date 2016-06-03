@@ -7,105 +7,129 @@ using namespace std;
 
 
 CFG::CFG() :
-		settings(QSettings::IniFormat, QSettings::UserScope, "katarakt") {
+		settings(QSettings::IniFormat, QSettings::UserScope, QString::fromUtf8("katarakt")) {
 	// TODO warn about invalid user input
 	init_defaults();
 }
 
 CFG::CFG(const char* file) :
-		settings(file, QSettings::IniFormat) {
+		// file comes from the command line, use locale
+		settings(QString::fromLocal8Bit(file), QSettings::IniFormat) {
 	init_defaults();
+}
+
+// explicitly interpret all strings as utf8
+void CFG::default_setting(const char *name, const char *value) {
+	vd.push_back(QString::fromUtf8(name));
+	defaults[vd.back()] = QString::fromUtf8(value);
+}
+
+// explicitly interpret all strings as utf8
+template <typename T>
+void CFG::default_setting(const char *name, const T value) {
+	vd.push_back(QString::fromUtf8(name));
+	defaults[vd.back()] = value;
+}
+
+// explicitly interpret all strings as utf8
+void CFG::default_key(const char *action, const char *key1, const char *key2 = NULL) {
+	vk.push_back(QString::fromUtf8(action));
+	keys[vk.back()] = QStringList() << QString::fromUtf8(key1);
+	if (key2 != NULL) {
+		keys[vk.back()] << QString::fromUtf8(key2);
+	}
 }
 
 void CFG::init_defaults() {
 	// settings
 	// canvas
-	vd.push_back("Settings/default_layout"); defaults[vd.back()] = "single";
-	vd.push_back("Settings/background_color"); defaults[vd.back()] = "0xDF202020";
-	vd.push_back("Settings/background_color_fullscreen"); defaults[vd.back()] = "0xFF000000";
-	vd.push_back("Settings/unrendered_page_color"); defaults[vd.back()] = "0x40FFFFFF";
-	vd.push_back("Settings/click_link_button"); defaults[vd.back()] = 1;
-	vd.push_back("Settings/drag_view_button"); defaults[vd.back()] = 2;
-	vd.push_back("Settings/select_text_button"); defaults[vd.back()] = 1;
-	vd.push_back("Settings/hide_mouse_timeout"); defaults[vd.back()] = 2000;
-	vd.push_back("Settings/smooth_scroll_delta"); defaults[vd.back()] = 30; // pixel scroll offset
-	vd.push_back("Settings/screen_scroll_factor"); defaults[vd.back()] = 0.9; // creates overlap for scrolling 1 screen down, should be <= 1
-	vd.push_back("Settings/jump_padding"); defaults[vd.back()] = 0.2; // must be <= 0.5
-	vd.push_back("Settings/rect_margin"); defaults[vd.back()] = 2;
-	vd.push_back("Settings/useless_gap"); defaults[vd.back()] = 2;
-	vd.push_back("Settings/min_zoom"); defaults[vd.back()] = -14;
-	vd.push_back("Settings/max_zoom"); defaults[vd.back()] = 30;
-	vd.push_back("Settings/zoom_factor"); defaults[vd.back()] = 0.05;
-	vd.push_back("Settings/min_page_width"); defaults[vd.back()] = 50;
-	vd.push_back("Settings/presenter_slide_ratio"); defaults[vd.back()] = 0.67;
+	default_setting("Settings/default_layout", "single");
+	default_setting("Settings/background_color", "0xDF202020");
+	default_setting("Settings/background_color_fullscreen", "0xFF000000");
+	default_setting("Settings/unrendered_page_color", "0x40FFFFFF");
+
+	default_setting("Settings/click_link_button", 1);
+	default_setting("Settings/drag_view_button", 2);
+	default_setting("Settings/select_text_button", 1);
+	default_setting("Settings/hide_mouse_timeout", 2000);
+	default_setting("Settings/smooth_scroll_delta", 30); // pixel scroll offset
+	default_setting("Settings/screen_scroll_factor", 0.9); // creates overlap for scrolling 1 screen down, should be <= 1
+	default_setting("Settings/jump_padding", 0.2); // must be <= 0.5
+	default_setting("Settings/rect_margin", 2);
+	default_setting("Settings/useless_gap", 2);
+	default_setting("Settings/min_zoom", -14);
+	default_setting("Settings/max_zoom", 30);
+	default_setting("Settings/zoom_factor", 0.05);
+	default_setting("Settings/min_page_width", 50);
+	default_setting("Settings/presenter_slide_ratio", 0.67);
 	// viewer
-	vd.push_back("Settings/quit_on_init_fail"); defaults[vd.back()] = false;
-	vd.push_back("Settings/single_instance_per_file"); defaults[vd.back()] = false;
-	vd.push_back("Settings/stylesheet"); defaults[vd.back()] = "";
-	vd.push_back("Settings/page_overlay_text"); defaults[vd.back()] = "Page %1/%2";
-	vd.push_back("Settings/icon_theme"); defaults[vd.back()] = "";
+	default_setting("Settings/quit_on_init_fail", false);
+	default_setting("Settings/single_instance_per_file", false);
+	default_setting("Settings/stylesheet", "");
+	default_setting("Settings/page_overlay_text", "Page %1/%2");
+	default_setting("Settings/icon_theme", "");
 	// internal
-	vd.push_back("Settings/prefetch_count"); defaults[vd.back()] = 4;
-	vd.push_back("Settings/inverted_color_contrast"); defaults[vd.back()] = 0.5;
-	vd.push_back("Settings/inverted_color_brightening"); defaults[vd.back()] = 0.15;
-	vd.push_back("Settings/mouse_wheel_factor"); defaults[vd.back()] = 120; // (qt-)delta for turning the mouse wheel 1 click
-	vd.push_back("Settings/thumbnail_filter"); defaults[vd.back()] = true; // filter when creating thumbnail image
-	vd.push_back("Settings/thumbnail_size"); defaults[vd.back()] = 32;
+	default_setting("Settings/prefetch_count", 4);
+	default_setting("Settings/inverted_color_contrast", 0.5);
+	default_setting("Settings/inverted_color_brightening", 0.15);
+	default_setting("Settings/mouse_wheel_factor", 120); // (qt-)delta for turning the mouse wheel 1 click
+	default_setting("Settings/thumbnail_filter", true); // filter when creating thumbnail image
+	default_setting("Settings/thumbnail_size", 32);
 
 	// keys
 	// movement
-	vk.push_back("Keys/page_up"); keys[vk.back()] = QStringList() << "PgUp";
-	vk.push_back("Keys/page_down"); keys[vk.back()] = QStringList() << "PgDown";
-	vk.push_back("Keys/top"); keys[vk.back()] = QStringList() << "Home" << "G";
-	vk.push_back("Keys/bottom"); keys[vk.back()] = QStringList() << "End" << "Shift+G";
-	vk.push_back("Keys/goto_page"); keys[vk.back()] = QStringList() << "Ctrl+G";
-	vk.push_back("Keys/half_screen_up"); keys[vk.back()] = QStringList() << "Ctrl+U";
-	vk.push_back("Keys/half_screen_down"); keys[vk.back()] = QStringList() << "Ctrl+D";
-	vk.push_back("Keys/screen_up"); keys[vk.back()] = QStringList() << "Backspace" << "Ctrl+B";
-	vk.push_back("Keys/screen_down"); keys[vk.back()] = QStringList() << "Space" << "Ctrl+F";
-	vk.push_back("Keys/smooth_up"); keys[vk.back()] = QStringList() << "Up" << "K";
-	vk.push_back("Keys/smooth_down"); keys[vk.back()] = QStringList() << "Down" << "J";
-	vk.push_back("Keys/smooth_left"); keys[vk.back()] = QStringList() << "Left" << "H";
-	vk.push_back("Keys/smooth_right"); keys[vk.back()] = QStringList() << "Right" << "L";
-	vk.push_back("Keys/search"); keys[vk.back()] = QStringList() << "/";
-	vk.push_back("Keys/search_backward"); keys[vk.back()] = QStringList() << "?";
-	vk.push_back("Keys/next_hit"); keys[vk.back()] = QStringList() << "N";
-	vk.push_back("Keys/previous_hit"); keys[vk.back()] = QStringList() << "Shift+N";
-	vk.push_back("Keys/next_invisible_hit"); keys[vk.back()] = QStringList() << "Ctrl+N";
-	vk.push_back("Keys/previous_invisible_hit"); keys[vk.back()] = QStringList() << "Ctrl+Shift+N";
-	vk.push_back("Keys/jump_back"); keys[vk.back()] = QStringList() << "Ctrl+O" << "Alt+Left";
-	vk.push_back("Keys/jump_forward"); keys[vk.back()] = QStringList() << "Ctrl+I" << "Alt+Right";
-	vk.push_back("Keys/mark_jump"); keys[vk.back()] = QStringList() << "M";
+	default_key("Keys/page_up", "PgUp");
+	default_key("Keys/page_down", "PgDown");
+	default_key("Keys/top", "Home", "G");
+	default_key("Keys/bottom", "End", "Shift+G");
+	default_key("Keys/goto_page", "Ctrl+G");
+	default_key("Keys/half_screen_up", "Ctrl+U");
+	default_key("Keys/half_screen_down", "Ctrl+D");
+	default_key("Keys/screen_up", "Backspace", "Ctrl+B");
+	default_key("Keys/screen_down", "Space", "Ctrl+F");
+	default_key("Keys/smooth_up", "Up", "K");
+	default_key("Keys/smooth_down", "Down", "J");
+	default_key("Keys/smooth_left", "Left", "H");
+	default_key("Keys/smooth_right", "Right", "L");
+	default_key("Keys/search", "/");
+	default_key("Keys/search_backward", "?");
+	default_key("Keys/next_hit", "N");
+	default_key("Keys/previous_hit", "Shift+N");
+	default_key("Keys/next_invisible_hit", "Ctrl+N");
+	default_key("Keys/previous_invisible_hit", "Ctrl+Shift+N");
+	default_key("Keys/jump_back", "Ctrl+O", "Alt+Left");
+	default_key("Keys/jump_forward", "Ctrl+I", "Alt+Right");
+	default_key("Keys/mark_jump", "M");
 	// layout
-	vk.push_back("Keys/set_single_layout"); keys[vk.back()] = QStringList() << "1";
-	vk.push_back("Keys/set_grid_layout"); keys[vk.back()] = QStringList() << "2";
-	vk.push_back("Keys/set_presenter_layout"); keys[vk.back()] = QStringList() << "3";
-	vk.push_back("Keys/zoom_in"); keys[vk.back()] = QStringList() << "=" << "+";
-	vk.push_back("Keys/zoom_out"); keys[vk.back()] = QStringList() << "-";
-	vk.push_back("Keys/reset_zoom"); keys[vk.back()] = QStringList() << "Z";
-	vk.push_back("Keys/increase_columns"); keys[vk.back()] = QStringList() << "]";
-	vk.push_back("Keys/decrease_columns"); keys[vk.back()] = QStringList() << "[";
-	vk.push_back("Keys/increase_offset"); keys[vk.back()] = QStringList() << "}";
-	vk.push_back("Keys/decrease_offset"); keys[vk.back()] = QStringList() << "{";
-	vk.push_back("Keys/rotate_left"); keys[vk.back()] = QStringList() << ",";
-	vk.push_back("Keys/rotate_right"); keys[vk.back()] = QStringList() << ".";
+	default_key("Keys/set_single_layout", "1");
+	default_key("Keys/set_grid_layout", "2");
+	default_key("Keys/set_presenter_layout", "3");
+	default_key("Keys/zoom_in", "=", "+");
+	default_key("Keys/zoom_out", "-");
+	default_key("Keys/reset_zoom", "Z");
+	default_key("Keys/increase_columns", "]");
+	default_key("Keys/decrease_columns", "[");
+	default_key("Keys/increase_offset", "}");
+	default_key("Keys/decrease_offset", "{");
+	default_key("Keys/rotate_left", ",");
+	default_key("Keys/rotate_right", ".");
 	// viewer
-	vk.push_back("Keys/toggle_overlay"); keys[vk.back()] = QStringList() << "T";
-	vk.push_back("Keys/quit"); keys[vk.back()] = QStringList() << "Q" << "W,E,E,E";
-	vk.push_back("Keys/close_search"); keys[vk.back()] = QStringList() << "Esc";
-	vk.push_back("Keys/invert_colors"); keys[vk.back()] = QStringList() << "I";
-	vk.push_back("Keys/copy_to_clipboard"); keys[vk.back()] = QStringList() << "Ctrl+C";
-	vk.push_back("Keys/swap_selection_and_panning_buttons"); keys[vk.back()] = QStringList() << "V";
-	vk.push_back("Keys/toggle_fullscreen"); keys[vk.back()] = QStringList() << "F";
-	vk.push_back("Keys/reload"); keys[vk.back()] = QStringList() << "R";
-	vk.push_back("Keys/open"); keys[vk.back()] = QStringList() << "O";
-	vk.push_back("Keys/save"); keys[vk.back()] = QStringList() << "S";
-	vk.push_back("Keys/toggle_toc"); keys[vk.back()] = QStringList() << "F9";
-	vk.push_back("Keys/freeze_presentation"); keys[vk.back()] = QStringList() << "X";
+	default_key("Keys/toggle_overlay", "T");
+	default_key("Keys/quit", "Q", "W,E,E,E");
+	default_key("Keys/close_search", "Esc");
+	default_key("Keys/invert_colors", "I");
+	default_key("Keys/copy_to_clipboard", "Ctrl+C");
+	default_key("Keys/swap_selection_and_panning_buttons", "V");
+	default_key("Keys/toggle_fullscreen", "F");
+	default_key("Keys/reload", "R");
+	default_key("Keys/open", "O");
+	default_key("Keys/save", "S");
+	default_key("Keys/toggle_toc", "F9");
+	default_key("Keys/freeze_presentation", "X");
 
 	// tmp values
-	tmp_values["start_page"] = 0;
-	tmp_values["fullscreen"] = false;
+	tmp_values[QString::fromUtf8("start_page")] = 0;
+	tmp_values[QString::fromUtf8("fullscreen")] = false;
 }
 
 CFG::CFG(const CFG &/*other*/) {
@@ -147,7 +171,8 @@ void CFG::write_defaults(const char *file) {
 	get_instance();
 }
 
-QVariant CFG::get_value(const char *key) const {
+QVariant CFG::get_value(const char *_key) const {
+	QString key = QString::fromUtf8(_key);
 #ifdef DEBUG
 	if (defaults.find(key) == defaults.end()) {
 		cout << "missing key " << key << endl;
@@ -157,22 +182,23 @@ QVariant CFG::get_value(const char *key) const {
 }
 
 void CFG::set_value(const char *key, QVariant value) {
-	settings.setValue(key, value);
+	settings.setValue(QString::fromUtf8(key), value);
 }
 
 QVariant CFG::get_tmp_value(const char *key) const {
-	return tmp_values[key];
+	return tmp_values[QString::fromUtf8(key)];
 }
 
 void CFG::set_tmp_value(const char *key, QVariant value) {
-	tmp_values[key] = value;
+	tmp_values[QString::fromUtf8(key)] = value;
 }
 
 bool CFG::has_tmp_value(const char *key) const {
-	return tmp_values.contains(key);
+	return tmp_values.contains(QString::fromUtf8(key));
 }
 
-QVariant CFG::get_most_current_value(const char *key) const {
+QVariant CFG::get_most_current_value(const char *_key) const {
+	QString key = QString::fromUtf8(_key);
 	if (tmp_values.contains(key)) {
 		return tmp_values[key];
 	} else {
@@ -185,7 +211,8 @@ QVariant CFG::get_most_current_value(const char *key) const {
 	}
 }
 
-QStringList CFG::get_keys(const char *action) const {
+QStringList CFG::get_keys(const char *_action) const {
+	QString action = QString::fromUtf8(_action);
 	return settings.value(action, keys[action]).toStringList();
 }
 
