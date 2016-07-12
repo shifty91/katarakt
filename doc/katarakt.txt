@@ -93,10 +93,14 @@ KEY BINDINGS
 	Show the search bar. Hitting *Esc* will hide the results, searching for an
 	empty string will clear them. If the search term contains an uppercase
 	letter the search is case sensitive ("smartcase").
+	If you search for the same term twice the next hit starting from the
+	current view is selected.
 *?* ::
 	Show the search bar. This next search will be backwards.
 *n*, *N* ::
 	Focus next/previous search hit.
+	This does not take the current view into account. For finding the next hit
+	around the current view search for the same term again.
 *\^n*, *^N* ::
 	Focus next/previous search hit that is currently not visible.
 
