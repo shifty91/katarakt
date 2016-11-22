@@ -175,7 +175,7 @@ QVariant CFG::get_value(const char *_key) const {
 	QString key = QString::fromUtf8(_key);
 #ifdef DEBUG
 	if (defaults.find(key) == defaults.end()) {
-		cout << "missing key " << key << endl;
+		cout << "missing key " << _key << endl;
 	}
 #endif
 	return settings.value(key, defaults[key]);
@@ -204,7 +204,7 @@ QVariant CFG::get_most_current_value(const char *_key) const {
 	} else {
 #ifdef DEBUG
 		if (defaults.find(key) == defaults.end()) {
-			cout << "missing key " << key << endl;
+			cout << "missing key " << _key << endl;
 		}
 #endif
 		return settings.value(key, defaults[key]);
