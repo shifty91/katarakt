@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QSemaphore>
+#include <QFileSystemWatcher>
 #if QT_VERSION >= 0x050000
 #	include <poppler-qt5.h>
 #else
@@ -85,7 +86,7 @@ public:
 	Poppler::LinkDestination *resolve_link_destination(const QString &name) const;
 
 public slots:
-	void inotify_slot();
+	void file_modified(const QString &path);
 
 private:
 	void enqueue(int page, int width, int index = 0);
@@ -118,11 +119,7 @@ private:
 	int page_count;
 	int rotation;
 
-#ifdef __linux__
-	int inotify_fd;
-	int inotify_wd;
-	QSocketNotifier *i_notifier;
-#endif
+	QFileSystemWatcher *file_system_watcher;
 
 	bool inverted_colors;
 

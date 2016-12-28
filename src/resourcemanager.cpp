@@ -4,9 +4,6 @@
 #include <unistd.h>
 #include <QSocketNotifier>
 #include <QFileInfo>
-#ifdef __linux__
-#include <sys/inotify.h>
-#endif
 #include "resourcemanager.h"
 #include "canvas.h"
 #include "util.h"
@@ -62,9 +59,7 @@ ResourceManager::ResourceManager(const QString &file, Viewer *v) :
 		doc(NULL),
 		center_page(0),
 		rotation(0),
-#ifdef __linux__
-		i_notifier(NULL),
-#endif
+		file_system_watcher(NULL),
 		inverted_colors(false),
 		cur_jump_pos(jumplist.end()) {
 	initialize(file, QByteArray());
@@ -87,23 +82,12 @@ void ResourceManager::initialize(const QString &file, const QByteArray &password
 	}
 	worker->start();
 
-	// setup inotify
-#ifdef __linux__
+	// setup file system watcher
 	QFileInfo info(file);
-	inotify_fd = inotify_init();
-	if (inotify_fd == -1) {
-		cerr << "inotify_init: " << strerror(errno) << endl;
-	} else {
-		i_notifier = new QSocketNotifier(inotify_fd, QSocketNotifier::Read, this);
-		connect(i_notifier, SIGNAL(activated(int)), this, SLOT(inotify_slot()),
-				Qt::UniqueConnection);
-
-		inotify_wd = inotify_add_watch(inotify_fd, info.path().toUtf8().constData(), IN_CLOSE_WRITE | IN_MOVED_TO);
-		if (inotify_wd == -1) {
-			cerr << "inotify_add_watch: " << strerror(errno) << endl;
-		}
-	}
-#endif
+	file_system_watcher = new QFileSystemWatcher(this);
+	file_system_watcher->addPath(file);
+	QObject::connect(file_system_watcher, SIGNAL(fileChanged(const QString &)),
+					 this, SLOT(file_modified(const QString &)));
 
 	if (doc == NULL) {
 		// poppler already prints a debug message
@@ -174,14 +158,10 @@ void ResourceManager::shutdown() {
 	garbageMutex.unlock();
 	requests.clear();
 	requestSemaphore.acquire(requestSemaphore.available());
-#ifdef __linux__
-	::close(inotify_fd);
-	delete i_notifier;
-	i_notifier = NULL;
-#endif
 	delete doc;
 	delete[] k_page;
 	delete worker;
+	delete file_system_watcher;
 }
 
 void ResourceManager::load(const QString &file, const QByteArray &password) {
@@ -354,36 +334,8 @@ Poppler::LinkDestination *ResourceManager::resolve_link_destination(const QStrin
 	return doc->linkDestination(name);
 }
 
-void ResourceManager::inotify_slot() {
-#ifdef __linux__
-	i_notifier->setEnabled(false);
-
-	size_t event_size = sizeof(struct inotify_event) + NAME_MAX + 1;
-	// take care of alignment
-	struct inotify_event i_buf[event_size / sizeof(struct inotify_event) + 1]; // has at least event_size
-	char *buf = reinterpret_cast<char *>(i_buf);
-
-	ssize_t bytes = read(inotify_fd, buf, sizeof(i_buf));
-	if (bytes == -1) {
-		cerr << "read: " << strerror(errno) << endl;
-	} else {
-		ssize_t offset = 0;
-		while (offset < bytes) {
-			struct inotify_event *event = reinterpret_cast<struct inotify_event *>(&buf[offset]);
-
-			QFileInfo info(file);
-			if (info.fileName() == QString::fromLocal8Bit(event->name)) {
-				viewer->reload(false); // don't clamp
-				i_notifier->setEnabled(true);
-				return;
-			}
-
-			offset += sizeof(struct inotify_event) + event->len;
-		}
-	}
-
-	i_notifier->setEnabled(true);
-#endif
+void ResourceManager::file_modified(const QString &path) {
+	viewer->reload(false); // don't clamp
 }
 
 void ResourceManager::enqueue(int page, int width, int index) {
