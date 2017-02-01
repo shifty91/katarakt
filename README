@@ -18,3 +18,8 @@ make
 To build the manpage/homepage type:
 make doc
 make web
+
+Completion
+----------
+When using zsh its built-in autocompletion can be used by
+copying ./completion/_katarakt to '/usr/share/zsh/functions/Completion/X/'
