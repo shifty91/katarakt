@@ -86,7 +86,7 @@ Returns a list (FILE LINE COLUMN)"
 (defun katarakt--call-view (pdf page x y)
   "View the specified location PDF:X:Y in katarakt."
   (dbus-call-method :session (katarakt--service-name) "/"
-                    "katarakt.SourceCorrelate" "view" pdf :int32 (- page 1) :int32 x :int32 y))
+                    "katarakt.SourceCorrelate" "view" pdf :int32 (- page 1) :double x :double y))
 
 (defun katarakt--signal-handler (file page x y)
   "Handle dbus signal from katarakt."
