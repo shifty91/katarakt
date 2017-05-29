@@ -10,7 +10,15 @@
 ;;
 ;; To use it in auctex, add the following to your init file:
 ;;
-;; (define-key LaTeX-mode-map (kbd "C-c C-v") 'katarakt-view)
+;; ;; you need to adjust the path
+;; (load-file "/path/to/share/katarakt.el") ;; provide katarakt-view
+;; (setq TeX-view-program-list '(("katarakt" katarakt-view))) ;; add another pdf viewer
+;; (setq TeX-view-program-selection '((output-pdf "katarakt"))) ;; use that viewer per default
+;;
+;; If you use spacemacs, add the above snipped to the dotspacemacs/user-init
+;; section of your ~/.spacemacs file.
+;;
+;; You also need to have `auctex` installed.
 
 ;;; Code:
 
