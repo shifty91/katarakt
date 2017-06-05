@@ -12,17 +12,22 @@
 using namespace std;
 
 
+static void print_version() {
+	cout << "katarakt version 0.1+" << endl;
+}
+
 static void print_help(char *name) {
 	cout << "Usage:" << endl;
 	cout << "  " << name << " ([OPTIONS] FILE|(-u URL))*" << endl;
 	cout << endl;
-	cout << "Settings:" << endl;
+	cout << "Options:" << endl;
 	cout << "  -u, --url                         Open a URL instead of a local file" << endl;
 	cout << "  -p, --page NUM                    Start showing page NUM" << endl;
 	cout << "  -f, --fullscreen                  Start in fullscreen mode" << endl;
 	cout << "  -q, --quit true|false             Quit on initialization failure" << endl;
 	cout << "  -s, --single-instance true|false  Whether to have a single instance per file" << endl;
 	cout << "  --write-default-config FILE       Write the default configuration to FILE and exit" << endl;
+	cout << "  -v, --version                     Print version information" << endl;
 	cout << "  -h, --help                        Print this help and exit" << endl;
 }
 
@@ -38,12 +43,13 @@ int main(int argc, char *argv[]) {
 		{"single-instance",			required_argument,	NULL,	's'},
 		{"write-default-config",	required_argument,	NULL,	0},
 		{"help",					no_argument,		NULL,	'h'},
+		{"version",					no_argument,		NULL,	'v'},
 		{NULL, 0, NULL, 0}
 	};
 	int option_index = 0;
 	bool download_url = false;
 	while (1) {
-		int c = getopt_long(argc, argv, "+up:fq:hs:", long_options, &option_index);
+		int c = getopt_long(argc, argv, "+up:fq:hs:v", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -80,6 +86,9 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'c':
 				CFG::write_defaults(optarg);
+				return 0;
+			case 'v':
+				print_version();
 				return 0;
 			default:
 				// getopt prints an error message
