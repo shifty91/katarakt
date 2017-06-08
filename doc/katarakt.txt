@@ -48,6 +48,8 @@ OPTIONS
 *--write-default-config* 'FILE'::
 	Write the built-in default configuration to 'FILE' and exit. Hint: on unix
 	systems, you can use '--write-defaults /dev/stdout' to print the defaults.
+*-v*, *--version*  ::
+	Print version information and exit.
 *-h*, *--help* ::
 	Print help and exit.
 

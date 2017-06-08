@@ -27,7 +27,7 @@ static void print_help(char *name) {
 	cout << "  -q, --quit true|false             Quit on initialization failure" << endl;
 	cout << "  -s, --single-instance true|false  Whether to have a single instance per file" << endl;
 	cout << "  --write-default-config FILE       Write the default configuration to FILE and exit" << endl;
-	cout << "  -v, --version                     Print version information" << endl;
+	cout << "  -v, --version                     Print version information and exit" << endl;
 	cout << "  -h, --help                        Print this help and exit" << endl;
 }
 
