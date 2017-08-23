@@ -13,7 +13,7 @@ using namespace std;
 
 
 static void print_version() {
-	cout << "katarakt version 0.1+" << endl;
+	cout << "katarakt version 0.2" << endl;
 }
 
 static void print_help(char *name) {
