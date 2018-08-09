@@ -43,6 +43,6 @@ Feel free to join `#katarakt` on `freenode`.
 
 ### License
 
-Copyright © 2011-2016, Philipp Erhardt. All rights reserved.
+Copyright © 2011-2018, Philipp Erhardt. All rights reserved.
 
 katarakt is free software. You can redistribute it and/or modify it under the terms of the simplified BSD license.

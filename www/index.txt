@@ -42,17 +42,17 @@ seamlessly replaced by new ones.
 
 Dependencies
 ------------
-	*	qt-core, qt-gui version 4
-	*	poppler-qt >= 0.18
+	*	qt-core, qt-gui version 4 or 5
+	*	poppler-qt 4 or 5 >= 0.18
 
 Source code
 -----------
 You can browse the
-link:http://git.informatik.uni-erlangen.de/?p=katarakt[git repo]
+link:https://gitlab.cs.fau.de/Qui_Sum/katarakt[git repo]
 online or clone it directly:
 
 ----
-git clone https://git.informatik.uni-erlangen.de/katarakt
+git clone https://gitlab.cs.fau.de/Qui_Sum/katarakt.git
 ----
 
 Tarballs are available link:https://wwwcip.cs.fau.de/~go18gomu/katarakt/tarballs/[here].
@@ -63,7 +63,7 @@ Feel free to join _#katarakt_ on _freenode_.
 
 License
 -------
-Copyright (C) 2011-2015, Philipp Erhardt. All rights reserved.
+Copyright (C) 2011-2018, Philipp Erhardt. All rights reserved.
 
 katarakt is free software. You can redistribute it and/or modify it under the
 terms of the simplified BSD license.
